@@ -11,6 +11,7 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/requestid"
 	"github.com/rs/zerolog/log"
 	"github.com/yokeTH/backend/pkg/apperror"
+	"github.com/yokeTH/backend/pkg/resp"
 )
 
 type serverInfo struct {
@@ -63,13 +64,11 @@ func (s *Server) Start(ctx context.Context, stop context.CancelFunc) {
 	}
 
 	s.App.Get("/", func(ctx fiber.Ctx) error {
-		return ctx.JSON(fiber.Map{
-			"data": serverInfo{
-				Name:    s.config.Name,
-				Version: version,
-				Env:     s.config.Env,
-			},
-		})
+		return ctx.JSON(resp.Success(serverInfo{
+			Name:    s.config.Name,
+			Version: version,
+			Env:     s.config.Env,
+		}))
 	})
 
 	go func() {
