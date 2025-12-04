@@ -1,11 +1,14 @@
 package httpserver
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/gofiber/fiber/v3/middleware/requestid"
+	"github.com/rs/zerolog/log"
 	"github.com/yokeTH/backend/pkg/apperror"
 )
 
@@ -44,4 +47,23 @@ func New(opts ...ServerOption) *Server {
 	server.App = app
 
 	return server
+}
+
+func (s *Server) Start(ctx context.Context, stop context.CancelFunc) {
+	go func() {
+		if err := s.Listen(fmt.Sprintf(":%d", s.config.Port)); err != nil {
+			log.Error().Err(err).Msg("failed to start server")
+			stop()
+		}
+	}()
+
+	defer func() {
+		if err := s.Shutdown(); err != nil {
+			log.Error().Err(err).Msg("failed to shutdown server")
+		}
+	}()
+
+	<-ctx.Done()
+
+	log.Info().Msg("shutting down server...")
 }
