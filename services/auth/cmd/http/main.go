@@ -19,7 +19,7 @@ import (
 )
 
 type appConfig struct {
-	Server   httpserver.Config   `envPrefix:"SERVER_"`
+	Server   httpserver.Config   `envPrefix:"HTTP_SERVER_"`
 	Dynamodb dynamoclient.Config `envPrefix:"DYNAMO_"`
 
 	KEKHEX string `env:"KEK_HEX,required"`
