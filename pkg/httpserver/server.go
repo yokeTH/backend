@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/recover"
@@ -11,6 +12,12 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/yokeTH/backend/pkg/apperror"
 )
+
+type serverInfo struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+	Env     string `json:"env"`
+}
 
 type Server struct {
 	config *Config
@@ -50,6 +57,21 @@ func New(opts ...ServerOption) *Server {
 }
 
 func (s *Server) Start(ctx context.Context, stop context.CancelFunc) {
+	version := os.Getenv("APP_VERSION")
+	if version == "" {
+		version = "unknown"
+	}
+
+	s.App.Get("/", func(ctx fiber.Ctx) error {
+		return ctx.JSON(fiber.Map{
+			"data": serverInfo{
+				Name:    s.config.Name,
+				Version: version,
+				Env:     s.config.Env,
+			},
+		})
+	})
+
 	go func() {
 		if err := s.Listen(fmt.Sprintf(":%d", s.config.Port)); err != nil {
 			log.Error().Err(err).Msg("failed to start server")
