@@ -1,11 +1,15 @@
 package repository
 
-import "context"
+import (
+	"context"
+
+	"github.com/yokeTH/backend/services/auth/internal/domain/model"
+)
 
 type JWKKeyRepository interface {
 	Count(ctx context.Context) (int, error)
-	CreateKey(ctx context.Context, key JWKKeyRepository) error
-	GetActiveKey(ctx context.Context) (*JWKKeyRepository, error)
-	GetPublicKeys(ctx context.Context) ([]JWKKeyRepository, error)
-	Rotete(ctx context.Context) error
+	CreateKey(ctx context.Context, key *model.JWKKeyModel) error
+	GetActiveKey(ctx context.Context) (*model.JWKKeyModel, error)
+	GetPublicKeys(ctx context.Context) ([]model.JWKKeyModel, error)
+	Rotete(ctx context.Context, new *model.JWKKeyModel) error
 }
