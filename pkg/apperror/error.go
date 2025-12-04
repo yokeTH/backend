@@ -6,6 +6,7 @@ import (
 	"runtime"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/rs/zerolog/log"
 )
 
 type detail struct {
@@ -39,8 +40,16 @@ func (e *AppError) toResponse() Response {
 }
 
 func IsAppError(err error) bool {
-	_, ok := err.(*AppError)
+	_, ok := AsAppError(err)
 	return ok
+}
+
+func AsAppError(err error) (*AppError, bool) {
+	var appErr *AppError
+	if errors.As(err, &appErr) {
+		return appErr, true
+	}
+	return nil, false
 }
 
 func New(err error, code int, message string, status ErrorStatus) *AppError {
@@ -64,6 +73,10 @@ func captureStack() []string {
 	stackTrace := make([]string, 0, n)
 	for i := range n {
 		fn := runtime.FuncForPC(pcs[i])
+		if fn == nil {
+			continue
+		}
+
 		file, line := fn.FileLine(pcs[i])
 		stackTrace = append(stackTrace, fmt.Sprintf("%s\n\tat %s:%d", fn.Name(), file, line))
 	}
@@ -100,10 +113,20 @@ func UnprocessableEntityError(err error, msg string, status ErrorStatus) *AppErr
 }
 
 func ErrorHandler(c fiber.Ctx, err error) error {
-	// Check if the error is an AppError
-	if IsAppError(err) {
-		e := err.(*AppError)
-		if err := c.Status(e.Code).JSON(e.toResponse()); err != nil {
+	if appErr, ok := AsAppError(err); ok {
+		log.Error().
+			Int("code", appErr.Code).
+			Str("message", appErr.Message).
+			Interface("status", appErr.Status).
+			Err(appErr.Err).
+			Strs("stack", appErr.Stack).
+			Msg("application error")
+
+		if e := c.Status(appErr.Code).JSON(appErr.toResponse()); e != nil {
+			log.Error().
+				Err(e).
+				Msg("failed to write AppError response")
+
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": fiber.Map{
 					"message": "A more critical error occurred.",
@@ -116,12 +139,21 @@ func ErrorHandler(c fiber.Ctx, err error) error {
 
 	var fiberErr *fiber.Error
 	if errors.As(err, &fiberErr) {
-		if err := c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		log.Error().
+			Int("code", fiberErr.Code).
+			Err(fiberErr).
+			Msg("fiber error")
+
+		if e := c.Status(fiberErr.Code).JSON(fiber.Map{
 			"error": fiber.Map{
 				"message": fiberErr.Error(),
 				"status":  StatusFiberError,
 			},
-		}); err != nil {
+		}); e != nil {
+			log.Error().
+				Err(e).
+				Msg("failed to write fiber.Error response")
+
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": fiber.Map{
 					"message": "A more critical error occurred.",
@@ -132,7 +164,10 @@ func ErrorHandler(c fiber.Ctx, err error) error {
 		return nil
 	}
 
-	// For all other errors, return a generic internal server error response
+	log.Error().
+		Err(err).
+		Msg("unhandled error")
+
 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 		"error": fiber.Map{
 			"message": "Unhandled error.",
