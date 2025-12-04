@@ -1,6 +1,6 @@
 provider "aws" {
-  alias                   = "localstack"
-  region                  = "us-east-1"
+  alias  = "localstack"
+  region = "us-east-1"
 
   skip_credentials_validation = true
   skip_metadata_api_check     = true
@@ -14,9 +14,9 @@ provider "aws" {
 resource "aws_dynamodb_table" "jwk_keys" {
   provider = aws.localstack
 
-  name           = "jwk_keys"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "kid"
+  name         = "jwk_keys"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "kid"
 
   attribute {
     name = "kid"
