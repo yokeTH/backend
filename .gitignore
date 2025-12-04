@@ -33,3 +33,31 @@ go.work.sum
 
 .direnv
 result/
+
+# Local .terraform directories
+**/.terraform/*
+
+# Terraform state
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform variable files (often contain secrets)
+*.tfvars
+*.tfvars.json
+
+# Terraform plan files
+*.tfplan
+
+# Local environment files
+.terraformrc
+terraform.rc
+
+# If you generate logs or debug outputs
+tf-debug.log

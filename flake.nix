@@ -11,7 +11,11 @@
   }:
     flake-utils.lib.eachDefaultSystem (
       system: let
-        pkgs = import nixpkgs {inherit system;};
+        pkgs = import nixpkgs {
+          inherit system;
+
+          config.allowUnfree = true;
+        };
 
         # go-migrate-pg = pkgs.go-migrate.overrideAttrs (oldAttrs: {
         #   tags = ["postgres"];
@@ -74,6 +78,8 @@
             # sql-formatter
 
             pre-commit
+
+            terraform
           ];
 
           shellHook = ''
