@@ -71,6 +71,7 @@
             golangci-lint
 
             air
+            goreman
             # swag
 
             # sqlc

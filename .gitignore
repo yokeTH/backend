@@ -61,3 +61,5 @@ terraform.rc
 
 # If you generate logs or debug outputs
 tf-debug.log
+
+**/tmp
