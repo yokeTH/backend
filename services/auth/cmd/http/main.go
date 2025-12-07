@@ -62,10 +62,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	log.Info().Int("result", jwkCnt).Msg("Scan jwk key")
 
 	jwkGenerator := jwk.NewJWKGenerator(localEncryptor, "env://KEK_HEX", model.JWKKeyStatusActive, 24*time.Hour*7)
 
 	if jwkCnt == 0 {
+		log.Info().Str("reason", "key count equals 0").Msg("Starting generate jwk")
 		newKey, err := jwkGenerator.Generate(ctx)
 		if err != nil {
 			panic(err)
@@ -73,6 +75,7 @@ func main() {
 		if err := jwkRepository.CreateKey(ctx, newKey); err != nil {
 			panic(err)
 		}
+		log.Info().Msg("Generated jwk key")
 	}
 
 	jwkHandler := handler.NewJWKHandler(jwkGenerator, jwkRepository)
