@@ -2,7 +2,7 @@ package resp
 
 type SuccessResponse[T any] struct {
 	Data       T          `json:"data"`
-	Pagination Pagination `json:"pagination"`
+	Pagination Pagination `json:"pagination,omitzero"`
 }
 
 type Pagination struct {
