@@ -5,3 +5,8 @@ services:
       - "4566:4566"
     environment:
       - SERVICES=dynamodb
+
+  cache:
+    image: valkey/valkey:9-alpine
+    ports:
+      - "6379:6379"
