@@ -82,6 +82,7 @@ func (g *snowflakeUnit) nextID() uint64 {
 		uint64(g.state.seq)
 }
 
+//lint:ignore U1000 exported for external use
 func (g *snowflakeUnit) workerID() uint16 {
 	g.mu.Lock()
 	defer g.mu.Unlock()

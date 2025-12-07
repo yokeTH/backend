@@ -102,7 +102,7 @@ func (g *JWKGenerator) Generate(ctx context.Context) (*model.JWKKeyModel, error)
 		return nil, fmt.Errorf("generate EC key: %w", err)
 	}
 
-	curveParams := privKey.Curve.Params()
+	curveParams := privKey.Params()
 	size := (curveParams.BitSize + 7) / 8 // 32 bytes for P-256
 
 	xB64 := encodeBigIntToBase64URL(privKey.X, size)

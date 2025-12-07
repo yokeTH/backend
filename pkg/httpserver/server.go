@@ -63,7 +63,7 @@ func (s *Server) Start(ctx context.Context, stop context.CancelFunc) {
 		version = "unknown"
 	}
 
-	s.App.Get("/", func(ctx fiber.Ctx) error {
+	s.Get("/", func(ctx fiber.Ctx) error {
 		return ctx.JSON(resp.Success(serverInfo{
 			Name:    s.config.Name,
 			Version: version,

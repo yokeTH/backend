@@ -42,7 +42,11 @@ func TestSnowflakeStress_100Services_10MIDs(t *testing.T) {
 				errCh <- err
 				return
 			}
-			defer svc.Shutdown(ctx)
+			defer func() {
+				if err := svc.Shutdown(ctx); err != nil {
+					t.Errorf("service shutdown error: %v", err)
+				}
+			}()
 
 			base := srvIndex * idsPerSrv
 			for i := range idsPerSrv {
