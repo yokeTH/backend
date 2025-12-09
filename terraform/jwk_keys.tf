@@ -1,0 +1,68 @@
+resource "aws_dynamodb_table" "jwk_keys_dev" {
+  count    = var.env == "dev" ? 1 : 0
+  provider = aws.localstack
+
+  name         = "jwk_keys"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "kid"
+
+  attribute {
+    name = "kid"
+    type = "S"
+  }
+
+  attribute {
+    name = "status"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "status-index"
+    hash_key        = "status"
+    projection_type = "ALL"
+  }
+
+  ttl {
+    attribute_name = "not_after_epoch"
+    enabled        = true
+  }
+
+  tags = {
+    Name        = "jwk_keys"
+    Environment = "dev"
+  }
+}
+
+resource "aws_dynamodb_table" "jwk_keys_prod" {
+  count = var.env == "prod" ? 1 : 0
+
+  name         = "jwk_keys"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "kid"
+
+  attribute {
+    name = "kid"
+    type = "S"
+  }
+
+  attribute {
+    name = "status"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "status-index"
+    hash_key        = "status"
+    projection_type = "ALL"
+  }
+
+  ttl {
+    attribute_name = "not_after_epoch"
+    enabled        = true
+  }
+
+  tags = {
+    Name        = "jwk_keys"
+    Environment = "prod"
+  }
+}
